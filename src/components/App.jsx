@@ -8,31 +8,44 @@ import { Modal } from './Modal/Modal';
 
 import { fetchImages } from './Fetch';
 
+const fetchImg = async (images, filter, page) => {
+  try {
+    const hits = await fetchImages(filter, page);
+    if (hits.length === 0) {
+      return { status: 'rejected', images };
+    }
+    return { status: 'resolved', images: [...images, ...hits] };
+  } catch (error) {
+    console.log(error);
+    return { status: 'rejected', images };
+  }
+};
+
 export const App = () => {
   const [images, setImages] = useState([]);
   const [status, setStatus] = useState('idle');
   const [filter, setFilter] = useState('');
   const [page, setPage] = useState(1);
   const [largeImg, setLargeImg] = useState('');
-  const fetchImg = async (filter, page) => {
-    try {
-      const hits = await fetchImages(filter, page);
-      if (hits.length === 0) {
-        return setStatus('rejected');
-      }
-      setImages([...images, ...hits]);
-      setStatus('resolved');
-    } catch (error) {
-      console.log(error);
-      setStatus('rejected');
-    }
-  };
+
+  const [lastFetchedFilter, setLastFetchedFilter] = useState(null);
+  const [lastFetchedPage, setLastFetchedPage] = useState(null);
+
   useEffect(() => {
-    if (filter !== '') {
+    if (
+      filter !== '' &&
+      (filter !== lastFetchedFilter || page !== lastFetchedPage)
+    ) {
       setStatus('pending');
-      fetchImg(filter, page);
+      setLastFetchedFilter(filter);
+      setLastFetchedPage(page);
+      (async () => {
+        const result = await fetchImg(images, filter, page);
+        setStatus(result.status);
+        setImages(result.images);
+      })();
     }
-  }, [page, filter]);
+  }, [images, lastFetchedFilter, lastFetchedPage, filter, page]);
 
   const openModal = img => {
     setLargeImg(img);
