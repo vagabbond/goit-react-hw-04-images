@@ -14,21 +14,20 @@ export const App = () => {
   const [filter, setFilter] = useState('');
   const [page, setPage] = useState(1);
   const [largeImg, setLargeImg] = useState('');
-
-  useEffect(() => {
-    const fetchImg = async (filter, page) => {
-      try {
-        const hits = await fetchImages(filter, page);
-        if (hits.length === 0) {
-          return setStatus('rejected');
-        }
-        setImages([...images, ...hits]);
-        setStatus('resolved');
-      } catch (error) {
-        console.log(error);
-        setStatus('rejected');
+  const fetchImg = async (filter, page) => {
+    try {
+      const hits = await fetchImages(filter, page);
+      if (hits.length === 0) {
+        return setStatus('rejected');
       }
-    };
+      setImages([...images, ...hits]);
+      setStatus('resolved');
+    } catch (error) {
+      console.log(error);
+      setStatus('rejected');
+    }
+  };
+  useEffect(() => {
     if (filter !== '') {
       setStatus('pending');
       fetchImg(filter, page);
