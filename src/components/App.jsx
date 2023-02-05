@@ -27,24 +27,17 @@ export const App = () => {
   const [filter, setFilter] = useState('');
   const [page, setPage] = useState(1);
   const [largeImg, setLargeImg] = useState('');
-  const [lastFetchedFilter, setLastFetchedFilter] = useState(null);
-  const [lastFetchedPage, setLastFetchedPage] = useState(null);
 
   useEffect(() => {
-    if (
-      filter !== '' &&
-      (filter !== lastFetchedFilter || page !== lastFetchedPage)
-    ) {
+    if (filter !== '') {
       setStatus('pending');
-      setLastFetchedFilter(filter);
-      setLastFetchedPage(page);
       (async () => {
         const result = await fetchImg(images, filter, page);
         setStatus(result.status);
-        setImages(result.images);
+        setImages(result.images, ...images);
       })();
     }
-  }, [images, lastFetchedFilter, lastFetchedPage, filter, page]);
+  }, [filter, page]);
 
   const openModal = img => {
     setLargeImg(img);
