@@ -8,16 +8,16 @@ import { Modal } from './Modal/Modal';
 
 import { fetchImages } from './Fetch';
 
-const fetchImg = async (images, filter, page) => {
+const fetchImg = async (filter, page) => {
   try {
     const hits = await fetchImages(filter, page);
     if (hits.length === 0) {
-      return { status: 'rejected', images };
+      return { status: 'rejected', hits };
     }
-    return { status: 'resolved', images: [...images, ...hits] };
+    return { status: 'resolved', hits };
   } catch (error) {
     console.log(error);
-    return { status: 'rejected', images };
+    return { status: 'rejected' };
   }
 };
 
@@ -33,9 +33,9 @@ export const App = () => {
       setStatus('pending');
 
       (async () => {
-        const result = await fetchImg(images, filter, page);
+        const result = await fetchImg(filter, page);
         setStatus(result.status);
-        setImages(prev => [...prev, ...result.images]);
+        setImages(prev => [...prev, ...result.hits]);
       })();
     }
   }, [filter, page]);
@@ -47,8 +47,12 @@ export const App = () => {
   const toggleModal = () => {
     setLargeImg('');
   };
-  const onSubmit = filter => {
-    setFilter(filter);
+  const onSubmit = filterP => {
+    if (filter !== filterP) {
+      setImages([]);
+      setPage(1);
+    }
+    setFilter(filterP);
   };
   const onClick = e => {
     e.preventDefault();
