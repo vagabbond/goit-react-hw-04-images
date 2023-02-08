@@ -35,7 +35,7 @@ export const App = () => {
       (async () => {
         const result = await fetchImg(images, filter, page);
         setStatus(result.status);
-        setImages(result.images);
+        setImages(prev => [...prev, ...result.images]);
       })();
     }
   }, [filter, page]);
